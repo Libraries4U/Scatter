@@ -164,4 +164,3 @@ caES("")
 esES("Unidades no encajan en resistencias en paralelo")
 euES("")
 frFR("")
-

@@ -721,6 +721,17 @@ tRainbowPaletteSize]()&]
 [s3; Returns the 2D surface rainbow color palette size.&]
 [s1;%- &]
 [s6;%- &]
+[s5;:Upp`:`:ScatterDraw`:`:SetDefaultCSVSeparator`(Upp`:`:String`):%- [_^Upp`:`:ScatterDraw^ S
+catterDraw][@(0.0.255) `&]_[* SetDefaultCSVSeparator]([_^Upp`:`:String^ String]_[*@3 sep])
+&]
+[s3; Sets [%-*@3 sep] as the default .csv files field separator.&]
+[s1; &]
+[s6;%- &]
+[s5;:Upp`:`:ScatterDraw`:`:GetDefaultCSVSeparator`(`):%- [_^Upp`:`:String^ String]_[* Get
+DefaultCSVSeparator]()&]
+[s3; Gets the the default .csv files field separator.&]
+[s1; &]
+[s6;%- &]
 [s5;:ScatterDraw`:`:SetZoomStyleX`(ZoomStyle`):%- [_^ScatterDraw^ ScatterDraw]_`&[* SetZo
 omStyleX](ZoomStyle_[*@3 style]_`=_TO`_CENTER)&]
 [s3; Sets the X zoom [%-*@3 style]. Valid values are:&]

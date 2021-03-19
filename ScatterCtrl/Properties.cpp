@@ -7,23 +7,20 @@ namespace Upp {
 #include <Draw/iml_source.h>
 
 
-void ScatterCtrl::DoShowEditDlg(int itab) 
-{
+void ScatterCtrl::DoShowEditDlg(int itab) {
 	PropertiesDlg dlg;
 	dlg.Init(*this);
 	dlg.Set(itab);
 	dlg.Perform();
 }
 
-void PropertiesDlg::Perform()
-{
+void PropertiesDlg::Perform(){
 	Run();
 	measures.Change();
 	measures.Change();
 }
 
-void MeasuresTab::Init(ScatterCtrl& scatter) 
-{
+void MeasuresTab::Init(ScatterCtrl& scatter) {
 	CtrlLayout(*this);
 	SizePos();
 	
@@ -91,8 +88,7 @@ void MeasuresTab::Init(ScatterCtrl& scatter)
 	Change();
 }
 	
-void MeasuresTab::Change() 
-{	
+void MeasuresTab::Change() {	
 	if (xMax <= xMin) {
 		Exclamation(t_("X min has to be lower than X max"));
 		return;
@@ -132,8 +128,7 @@ void MeasuresTab::Change()
 	scatter.Refresh();
 }
 
-void TextsTab::Init(ScatterCtrl& scatter) 
-{
+void TextsTab::Init(ScatterCtrl& scatter) {
 	CtrlLayout(*this);
 	SizePos();
 	
@@ -197,8 +192,7 @@ void TextsTab::OnChangeFontLabel(Font font) {
 	pscatter->Refresh();
 }
 	
-void TextsTab::Change() 
-{
+void TextsTab::Change() {
 	ScatterCtrl &scatter = *pscatter;
 	
 	scatter.SetTitle(~title);
@@ -211,8 +205,7 @@ void TextsTab::Change()
 	scatter.Refresh();
 }
 
-void LegendTab::Init(ScatterCtrl& scatter) 
-{
+void LegendTab::Init(ScatterCtrl& scatter) {
 	CtrlLayout(*this);
 	SizePos();
 	
@@ -252,8 +245,7 @@ void LegendTab::Init(ScatterCtrl& scatter)
 	Change();
 }
 
-void LegendTab::ChangeAnchor(Option *op) 
-{
+void LegendTab::ChangeAnchor(Option *op) {
 	legendAnchorLT <<= false;
 	legendAnchorRT <<= false;
 	legendAnchorLB <<= false;
@@ -263,8 +255,7 @@ void LegendTab::ChangeAnchor(Option *op)
 	Change();
 }
 	
-void LegendTab::Change() 
-{
+void LegendTab::Change() {
 	ScatterCtrl &scatter = *pscatter;
 	
     scatter.ShowLegend(showLegend);
@@ -306,8 +297,7 @@ void LegendTab::Change()
 	scatter.Refresh();
 }
 
-void GeneralTab::Init(ScatterCtrl& scatter) 
-{
+void GeneralTab::Init(ScatterCtrl& scatter) {
 	CtrlLayout(*this);
 	SizePos();
 	
@@ -332,19 +322,20 @@ void GeneralTab::Init(ScatterCtrl& scatter)
 	opResponsive <<= scatter.ScatterDraw::IsResponsive();
 	editSensitivity <<= scatter.ScatterDraw::GetResponsivenessFactor();
 	editJpgQ <<= scatter.GetJPGQuality();
+	editCsv <<= scatter.GetDefaultCSVSeparator();
 	editWidth.WhenAction = [=] {Change();};
 	editHeight.WhenAction = [=] {Change();};
 	opResponsive.WhenAction = [=] {Change();};
 	editSensitivity.WhenAction = [=] {Change();};
 	editJpgQ.WhenAction = [=] {Change();};
+	editCsv.WhenAction = [=] {Change();};
 	
 	butApplyToAll.WhenAction = [=] {ChangeAll();};
 	
 	Change();
 }
 	
-void GeneralTab::Change() 
-{
+void GeneralTab::Change() {
 	ScatterCtrl &scatter = *pscatter;
 	
     scatter.SetMode(~dropResolution);
@@ -353,13 +344,13 @@ void GeneralTab::Change()
     scatter.SetSaveSize(size);
     scatter.ScatterDraw::Responsive(~opResponsive, ~editSensitivity);
     scatter.SetJPGQuality(~editJpgQ);
+    scatter.SetDefaultCSVSeparator(~editCsv);
     
 	scatter.SetModify();
 	scatter.Refresh();
 }
 
-void GeneralTab::ChangeAll() 
-{
+void GeneralTab::ChangeAll() {
 	for (int i = 0; i < ScatterCtrl::GetInstancesCount(); ++i) {
 		ScatterCtrl &scatter = ScatterCtrl::GetInstance(i);
 		
@@ -369,14 +360,14 @@ void GeneralTab::ChangeAll()
 	    scatter.SetSaveSize(size);
 	    scatter.ScatterDraw::Responsive(~opResponsive, ~editSensitivity);
 	    scatter.SetJPGQuality(~editJpgQ);
+	    scatter.SetDefaultCSVSeparator(~editCsv);
 	    
 		scatter.SetModify();
 		scatter.Refresh();
 	}
 }
 
-void SeriesTab::Init(ScatterCtrl& scatter) 
-{
+void SeriesTab::Init(ScatterCtrl& scatter) {
 	CtrlLayout(left);
 	CtrlLayout(right);
 	Horz(left.SizePos(), right.SizePos());
@@ -388,8 +379,7 @@ void SeriesTab::Init(ScatterCtrl& scatter)
 	Init0();
 }
 
-void SeriesTab::Init0()
-{
+void SeriesTab::Init0() {
 	ScatterCtrl &scatter = *pscatter;
 	
 	right.Enable(!scatter.IsEmpty());
@@ -464,8 +454,7 @@ void SeriesTab::ChangeMark() {
 		right.marktype.SetIndex(idStyle);
 }
 
-void SeriesTab::Change() 
-{
+void SeriesTab::Change() {
 	int index = left.list.GetCursor();
 	if (index < 0)
 		return;
@@ -496,8 +485,7 @@ void SeriesTab::Change()
 	scatter.Refresh();
 }
 
-void SeriesTab::UpdateFields() 
-{
+void SeriesTab::UpdateFields() {
 	int index = left.list.GetCursor();
 	if (index < 0)
 		return;
@@ -534,8 +522,7 @@ void SeriesTab::UpdateFields()
 	right.primary <<= scatter.IsDataPrimaryY(index);
 }
 
-void SeriesTab::OnMoveUp() 
-{
+void SeriesTab::OnMoveUp() {
 	int index = left.list.GetCursor();
 	if (index <= 0)
 		return;
@@ -551,8 +538,7 @@ void SeriesTab::OnMoveUp()
 	scatter.Refresh();
 }
 
-void SeriesTab::OnMoveDown() 
-{
+void SeriesTab::OnMoveDown() {
 	int index = left.list.GetCursor();
 	if (index < 0 || index == left.list.GetCount()-1)
 		return;
@@ -569,8 +555,7 @@ void SeriesTab::OnMoveDown()
 	scatter.Refresh();
 }
 
-void SeriesTab::OnDelete()
-{
+void SeriesTab::OnDelete() {
 	int index = left.list.GetCursor();
 	if (index < 0)
 		return;

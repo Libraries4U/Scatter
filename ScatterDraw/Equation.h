@@ -1,7 +1,7 @@
 #ifndef _ScatterDraw_Equation_h_
 #define _ScatterDraw_Equation_h_
 
-#include <plugin/Eigen/Eigen.h>
+#include <Eigen/Eigen.h>
 
 namespace Upp {
 
@@ -574,6 +574,18 @@ public:
 		else
 			val = val*d.val/(val + d.val);
 	}	
+	String ToString() const {
+		if (sval.IsVoid()) 
+			return FormatDouble(val);
+		else
+			return sval;
+	}
+	double ToDouble() const {
+		if (sval.IsVoid()) 
+			return val;
+		else
+			return ScanDouble(sval);
+	}
 	void SetNull()                 {val = Null;}
 	bool IsNullInstance() const    {return IsNull(unit) && IsNull(val);}
 };
@@ -650,8 +662,11 @@ public:
 		return variables.Add(name, Null);
 	}
 	doubleUnit &GetVariable(int id)							{return variables[id];}
-	void GetVariable(int id, String &name, doubleUnit &val)	{name = variables.GetKey(id); val = variables[id];}
+	void GetVariable(int id, String &name, doubleUnit &val)	const {name = variables.GetKey(id); val = variables[id];}
 	const String &GetVariableName(int id) const				{return variables.GetKey(id);}
+	Vector<int> FindPattern(String yes, String no) const;
+	Vector<int> FindPattern(String yes) const 				{return FindPattern(yes, "");}
+	Vector<int> FindPattern(String yes, String no, String yes2) const;
 	int GetVariablesCount() 								{return variables.GetCount();}
 	void ClearVariables();
 	String &GetLastError()									{return lastError;}

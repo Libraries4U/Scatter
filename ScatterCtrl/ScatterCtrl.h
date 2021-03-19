@@ -5,7 +5,7 @@
 #include <plugin/jpg/jpg.h>
 #include <PdfDraw/PdfDraw.h>
 #include <GridCtrl/GridCtrl.h>
-#include <plugin/Eigen/Eigen.h>
+#include <Eigen/Eigen.h>
 #include <ScatterDraw/Histogram.h>
 
 #include "PopUpText.h"
@@ -243,6 +243,7 @@ public:
 #endif	
 	void SaveToClipboard(bool saveAsMetafile = false);
 	bool SaveToFile(String fileName = Null);
+	bool SaveToFileData(String fileName = Null);
 	
 	void LoadControl();
 	void SaveControl();
@@ -308,10 +309,7 @@ public:
 		
 	ScatterCtrl& SetMaxRefreshTime(int _maxRefresh_ms) 	{maxRefresh_ms = _maxRefresh_ms; return *this;}
 	int GetMaxRefreshTime() 							{return maxRefresh_ms;}
-	
-	ScatterCtrl& SetDefaultCSVSeparator(String sep) 	{defaultCSVseparator = sep;	return *this;}
-	String GetDefaultCSVSeparator() 					{return defaultCSVseparator;}
-	
+		
 	ScatterCtrl &SetMouseHandling(bool valx = true, bool valy = false)			{ScatterDraw::SetMouseHandling(valx, valy);			return *this;} 
 	ScatterCtrl &SetMouseHandlingLinked(bool valx = true, bool valy = false) 	{ScatterDraw::SetMouseHandlingLinked(valx, valy);	return *this;}
 	
@@ -429,8 +427,6 @@ private:
 	template <class T>
 	void SetDrawing(T& w, const Size &sz, bool ctrl = true);	
 	void TimerCallback();	
-	
-	String defaultCSVseparator = ";";
 
 	String defaultFileNamePlot;	
 	void OnTypeImage(FileSel *_fs);
@@ -515,7 +511,7 @@ public:
 		if (dataInternal)
 			scatter.SetDataSourceInternal();
 		if (zoomToFit)
-			scatter.ZoomToFit(true, true);
+			scatter.ZoomToFit(true, true, .05);
 		TopWindow::SetRect(0, 0, width, height);
 		TopWindow::OpenMain();
 		Ctrl::ProcessEvents();
@@ -535,7 +531,8 @@ private:
 
 class ScatterWindowPool {
 public:
-	static ScatterWindow &Get()	{return pool.Add();}
+	static ScatterWindow &Get()			{return pool.Add();}
+	static void Get(ScatterWindow *w)	{w = &pool.Add();}
 
 private:
 	static Array<ScatterWindow> pool;

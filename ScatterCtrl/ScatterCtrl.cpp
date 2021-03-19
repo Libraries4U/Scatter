@@ -939,8 +939,7 @@ void ScatterCtrl::MouseLeave()
 	}
 }
 
-void ScatterCtrl::MouseZoom(int zdelta, bool , bool ) 
-{
+void ScatterCtrl::MouseZoom(int zdelta, bool , bool ) {
 	double scale = zdelta > 0 ? zdelta/100. : -100./zdelta;
 	if (lastRefresh_sign != ((scale >= 0) ? 1 : -1))	
 		lastRefresh_ms = Null;					// Change of scale sign resets lastRefresh check
@@ -951,8 +950,7 @@ void ScatterCtrl::MouseZoom(int zdelta, bool , bool )
 	Zoom(scale, mouseHandlingX, mouseHandlingY);
 }
 
-Image ScatterCtrl::CursorImage(Point , dword )
-{
+Image ScatterCtrl::CursorImage(Point , dword ) {
 	if (isZoomWindow)
 		return ScatterImg::ZoomPlus();
 	else if (mouseAction == LEFT_DOWN)
@@ -960,8 +958,7 @@ Image ScatterCtrl::CursorImage(Point , dword )
 	return Image::Arrow();
 }
 
-void ScatterCtrl::ContextMenu(Bar& bar)
-{
+void ScatterCtrl::ContextMenu(Bar& bar) {
 	if (mouseHandlingX || mouseHandlingY) {
 		bar.Add(t_("Fit to data"), ScatterImg::ShapeHandles(), [=]{ZoomToFit(mouseHandlingX, mouseHandlingY, 0.);}).Key(K_CTRL_F)
 									.Help(t_("Zoom to fit visible all data"));
@@ -1024,8 +1021,7 @@ void ScatterCtrl::ContextMenu(Bar& bar)
 	bar.Add(t_("Save plot"), [=] {SaveControl();}).Help(t_("Save plot to file"));
 }
 
-void ScatterCtrl::OnTypeImage(FileSel *_fs)
-{
+void ScatterCtrl::OnTypeImage(FileSel *_fs) {
 	FileSel &fs = *_fs;
 	int id = fs.type.GetIndex();
 	
@@ -1037,8 +1033,7 @@ void ScatterCtrl::OnTypeImage(FileSel *_fs)
 		fs.file = ForceExt(GetFileName(~fs), ".pdf");
 }
 
-bool ScatterCtrl::SaveToFile(String fileName)
-{
+bool ScatterCtrl::SaveToFile(String fileName) {
 	GuiLock __;
 	
 	if (IsNull(fileName)) {
@@ -1089,6 +1084,44 @@ bool ScatterCtrl::SaveToFile(String fileName)
 		ScatterDraw::SetSize(saveSize);
 		ScatterDraw::SetDrawing(pdf, false);
 		return SaveFile(fileName, pdf.Finish());		
+	} else {
+		Exclamation(Format(t_("File format \"%s\" not found"), GetFileExt(fileName)));
+		return false;
+	}
+}
+
+bool ScatterCtrl::SaveToFileData(String fileName) {
+	GuiLock __;
+	
+	if (IsNull(fileName)) {
+		FileSel fs;
+		fs.Type(Format(t_("%s comma separated file"), "csv"), "*.csv");
+		fs.AllFilesType();
+		if (!GetTitle().IsEmpty())
+			fs = FixPathName(GetTitle()) + ".csv";
+		else if (!defaultFileNamePlot.IsEmpty())
+			fs = defaultFileNamePlot;
+		else
+			fs = String(t_("Scatter data")) + ".csv";
+		
+		String ext = GetFileExt(~fs);
+		fs.DefaultExt(ext);
+		int idt = 0;
+		if (ext == ".csv")
+			idt = 0;
+		fs.ActiveType(idt);
+	
+		fs.ActiveDir(GetFileFolder(defaultFileNamePlot));
+		fs.type.WhenAction = [&] {OnTypeImage(&fs);}; 
+	    if(!fs.ExecuteSaveAs(t_("Saving plot data to file"))) {
+	        Exclamation(t_("Plot has not been saved"));
+	        return false;
+	    }
+        fileName = defaultFileNamePlot = ~fs;
+	} 
+	if (GetFileExt(fileName) == ".csv") {
+		WaitCursor waitcursor;
+		return SaveFileBOMUtf8(fileName, GetCSV());
 	} else {
 		Exclamation(Format(t_("File format \"%s\" not found"), GetFileExt(fileName)));
 		return false;

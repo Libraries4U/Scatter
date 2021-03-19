@@ -1,7 +1,7 @@
 #ifndef _ScatterDraw_DataSource_h_
 #define _ScatterDraw_DataSource_h_
 
-#include <plugin/Eigen/Eigen.h>
+#include <Eigen/Eigen.h>
 #include <numeric>
 
 namespace Upp {
@@ -27,6 +27,7 @@ public:
 	virtual double f(double ) 					{NEVER();	return Null;}
 	virtual double f(Vector<double> ) 			{NEVER();	return Null;}
 	virtual int64 GetCount() const = 0;
+	int64 size() const 							{return GetCount();}
 	bool IsEmpty() const						{return GetCount() == 0;}
 	virtual int GetznxCount(int64 ) const		{return 0;}
 	virtual int GetznyCount(int64 ) const		{return 0;}
@@ -64,6 +65,9 @@ public:
 		ResizeConservative(out0, n);
 		ResizeConservative(out1, n);
 	}
+	template <class Range>
+	void CopyXY(Range &outX, Range &outY) {	Copy(&DataSource::x, &DataSource::y, outX, outY);}
+	
 	template <class Range>
 	void Copy(Getdatafun getdata0, Getdatafun getdata1, Getdatafun getdata2, Range &out0, Range &out1, Range &out2) {
 		Resize(out0, GetCount());
@@ -447,7 +451,7 @@ protected:
 	
 class CArray : public DataSource {
 private:
-	const double *yData, *xData, *zData;
+	const double *xData, *yData, *zData;
 	int64 numData;
 	double x0, deltaX;
 	

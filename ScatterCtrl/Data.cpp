@@ -2,15 +2,13 @@
 
 namespace Upp {
 
-void ScatterCtrl::DoShowData()
-{
+void ScatterCtrl::DoShowData() {
 	DataDlg dlg;
 	dlg.Init(*this);
 	dlg.Run();
 }
 
-void DataDlg::Init(ScatterCtrl& scatter) 
-{
+void DataDlg::Init(ScatterCtrl& scatter) {
 	CtrlLayout(*this, t_("Scatter data"));
 	Sizeable().Zoomable();
 	
@@ -52,10 +50,10 @@ void DataDlg::Init(ScatterCtrl& scatter)
 	
 	tab.WhenAction = [=]{OnTab();};
 	butOK.WhenAction = [=] {Close();};
+	butSave.WhenAction = [&] {scatter.SaveToFileData();};
 }
 
-Value DataDlg::DataSourceX::Format(const Value& q) const 
-{
+Value DataDlg::DataSourceX::Format(const Value& q) const {
 	if (pscatter->IsDeletedDataSource(index))
 		return Null;
 	if (int(q) >= pscatter->GetDataSource(index).GetCount())
@@ -69,8 +67,7 @@ Value DataDlg::DataSourceX::Format(const Value& q) const
 	return ret;
 }
 
-Value DataDlg::DataSourceY::Format(const Value& q) const 
-{
+Value DataDlg::DataSourceY::Format(const Value& q) const {
 	if (pscatter->IsDeletedDataSource(index))
 		return Null;
 	if (int(q) >= pscatter->GetDataSource(index).GetCount())
@@ -84,8 +81,7 @@ Value DataDlg::DataSourceY::Format(const Value& q) const
 	return ret;
 }
 
-void DataDlg::OnTab() 
-{
+void DataDlg::OnTab() {
 	int index = tab.Get();
 	if (index < 0)
 		return;
@@ -162,8 +158,7 @@ void DataDlg::ArraySaveToFile(String fileName) {
 								"\r\n", pscatter->GetDefaultCSVSeparator(), "\r\n"));
 }
 
-void DataDlg::ArraySelect() 
-{
+void DataDlg::ArraySelect() {
 	int index = tab.Get();
 	if (index < 0)
 		return;
@@ -172,8 +167,7 @@ void DataDlg::ArraySelect()
 	data.Select(0, data.GetCount(), true);
 }
 
-void DataDlg::OnArrayBar(Bar &menu) 
-{
+void DataDlg::OnArrayBar(Bar &menu) {
 	int index = tab.Get();
 	if (index < 0)
 		return;

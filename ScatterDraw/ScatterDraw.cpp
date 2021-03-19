@@ -1,14 +1,16 @@
 #include "ScatterDraw.h"
 
 namespace Upp {
-	
+
+String ScatterDraw::defaultCSVseparator = ";";
+
 ScatterDraw::ScatterDraw() {
 	lastxRange = xRange;
 	lastyRange = yRange;
 }
 
 void debug_h() {
-	;			// It does nothing. It just serves as a place to set a breakpoint for templated functions
+	;		// It does nothing. It just serves as a place to set a breakpoint for templated functions
 }
 
 ScatterDraw& ScatterDraw::SetColor(const Color& _color) {
@@ -493,9 +495,9 @@ Color ScatterDraw::GetNewColor(int index, int version) {
 					 Color(86,117,119), Color(188,91,165), Color(124,120,216), Color(195,208,119), Color(79,46,75)};
 	if (index < 20) {
 		if (version == 0) 
-			return old[index];
+			return AdjustIfDark(old[index]);
 		else
-			return nwc[index];
+			return AdjustIfDark(nwc[index]);
 	} else
 		return Color(Random(), Random(), Random());
 }
@@ -1116,11 +1118,6 @@ bool ScatterDraw::IsDataPrimaryY(int index) {
 	
 	return series[index].primaryY;	
 }
-/*
-void ScatterDraw::SetDataSourceInternal() {
-	for (int i = 0; i < series.GetCount(); ++i)
-		series[i].SetDataSource_Internal(true);
-}*/
 
 bool ScatterDraw::ThereArePrimaryY() {
 	for (int i = 0; i < series.GetCount(); ++i)
@@ -1573,6 +1570,84 @@ ScatterDraw& ScatterDraw::SetMouseHandlingLinked(bool valx, bool valy) {
 	    	linkedCtrls[i]->SetMouseHandling(valx, valy);
 	}
 	return *this;
+}
+
+void ScatterDraw::AddId(Vector<Vector<int>> &idGroups, int id) {
+	if (idGroups.IsEmpty()) {
+		idGroups.Add() << id;
+		return;
+	}
+	for (int i = 0; i < idGroups.GetCount(); ++i) {
+		if (series[id].Data().SameX(series[idGroups[i][0]].Data())) {
+			idGroups[i] << id;
+			return;
+		}
+	}
+	idGroups.Add() << id;
+}
+
+String ScatterDraw::GetCSV() {
+	String ret = GetTitle() + "\n";
+	Vector<Vector<int>> idGroups;
+	for (int i = 0; i < series.GetCount(); ++i) {
+		const ScatterSeries &serie = series[i]; 
+		const DataSource &data = serie.Data();
+		if (!serie.IsDeleted() && serie.opacity > 0  && !data.IsExplicit()) {
+			int64 sz = data.GetCount();
+			if (!IsNull(sz) && sz > 0) 
+				AddId(idGroups, i);
+		}
+	}
+	String sep = GetDefaultCSVSeparator();
+	for (int i = 0; i < idGroups.size(); i++) {
+		for (int ii = 0; ii < idGroups[i].size(); ii++) {
+			const ScatterSeries &serie = series[idGroups[i][ii]];
+			if (ii == 0) {
+				String str = GetLabelX();
+				if (!serie.unitsX.IsEmpty()) {
+					if (!GetLabelX().IsEmpty())
+						str << " ";
+					str << "[" << serie.unitsX << "]";
+				}
+				if (i > 0)
+					ret << sep;
+				ret << str;
+			}
+			String str = serie.legend;
+			if (!serie.unitsY.IsEmpty()) {
+				if (!serie.legend.IsEmpty())
+					str << " ";
+				str << "[" << serie.unitsY << "]";
+			}
+			ret << sep << str;
+		}
+	}
+	bool thereIsData = true;
+	for (int64 row = 0; thereIsData; row++) {
+		String line = "\n";
+		thereIsData = false;
+		for (int i = 0; i < idGroups.size(); i++) {
+			bool plot = series[idGroups[i][0]].Data().size() > row;
+			if (plot)
+				thereIsData = true;
+			if (i > 0)
+				line << sep;
+			for (int ii = 0; ii < idGroups[i].size(); ii++) {
+				ScatterSeries &serie = series[idGroups[i][ii]];
+				DataSource &data = serie.Data();
+				if (ii == 0) {
+					if (plot) 
+						line << data.x(row);
+				}
+				line << sep;
+				if (plot)
+					line << data.y(row);
+			}
+		}
+		if (thereIsData)
+			ret << line;	
+	}
+	return ret;
 }
 
 

@@ -1,5 +1,5 @@
 #include "ScatterDraw.h"
-#include <plugin/Eigen/Eigen.h>
+#include <Eigen/Eigen.h>
 
 namespace Upp {
 using namespace Eigen;
@@ -295,6 +295,7 @@ EvalExpr::EvalExpr() {
 }
 
 doubleUnit EvalExpr::Term(CParserPP& p) {
+	p.Char('+');
 	bool isneg = p.Char('-');
 	if (p.IsId()) {
 		String strId = p.ReadIdPP();
@@ -607,6 +608,24 @@ void EvalExpr::ClearVariables() {
 	variables.Clear();
 }
 
+Vector<int> EvalExpr::FindPattern(String yes, String no) const {
+	Vector<int> ret;
+	yes = ToLower(yes);
+	no = ToLower(no);
+	for (int i = 0; i < variables.GetCount(); ++i) {	
+		String name = ToLower(variables.GetKey(i));
+		if (PatternMatch(yes, name) && !PatternMatch(no, name))
+			ret << i;	
+	}
+	return ret;
+}
+
+Vector<int> EvalExpr::FindPattern(String yes, String no, String yes2) const {
+	Vector<int> ret = FindPattern(yes, no);
+	if (ret.IsEmpty())
+		ret = FindPattern(yes2, no);
+	return ret;
+}
 
 ExplicitEquation::FitError SplineEquation::Fit(DataSource &data, double &r2) {	
 	Vector<Pointf> seriesRaw;

@@ -854,13 +854,13 @@ public:
 	Color& GetRainbowPaletteTextColor() 					{return rainbowPaletteTextColor;}
 	
 	ScatterDraw &AddLabelSeries(Vector<String> &labels, int dx = 0, int dy = 0, Font font = StdFont(), 
-					Alignment align = ALIGN_CENTER, Color color = Black()) {
+					Alignment align = ALIGN_CENTER, Color color = SColorText()) {
 		int index = series.GetCount() - 1;
 		
 		return AddLabelSeries(index, labels, dx, dy, font, align, color);
 	}
 	ScatterDraw& AddLabelSeries(int index, Vector<String> &labels, int dx = 0, int dy = 0, Font font = StdFont(), 
-					Alignment align = ALIGN_CENTER, Color color = Black()) {	
+					Alignment align = ALIGN_CENTER, Color color = SColorText()) {	
 		ASSERT(IsValid(index));
 		ASSERT(!series[index].IsDeleted());
 		
@@ -1099,6 +1099,10 @@ public:
 			s % series;
 	}
 	
+	String GetCSV();
+	static void SetDefaultCSVSeparator(String sep) 	{defaultCSVseparator = sep;}
+	static String GetDefaultCSVSeparator() 			{return defaultCSVseparator;}
+
 	String VariableFormatX(double d) const  {return VariableFormat(xRange, d);}
 	String VariableFormatY(double d) const  {return VariableFormat(yRange, d);} 
 	String VariableFormatY2(double d) const {return VariableFormat(yRange2, d);}
@@ -1109,7 +1113,7 @@ protected:
 	virtual void Refresh() {};
 
 	int mode{MD_ANTIALIASED};
-	Color graphColor = White();	
+	Color graphColor = SColorPaper();	
 	String title;
 	Upp::Font titleFont = Arial(20);
 	Color titleColor = SColorText();
@@ -1122,7 +1126,7 @@ protected:
 	
 	int   hPlotLeft = 30, hPlotRight = 30, 
 		  vPlotTop = 30, vPlotBottom = 30;
-	Color plotAreaColor = White();
+	Color plotAreaColor = SColorPaper();
 	
 	bool fastViewX = false, sequentialXAll = false;
 	
@@ -1141,7 +1145,7 @@ protected:
 	bool drawXReticle = true, drawYReticle = true, drawY2Reticle = false;
 	bool drawXReticleNumbers = true, drawYReticleNumbers = true, drawY2ReticleNumbers = false;
 	Font reticleFont = GetStdFont();
-	Color reticleColor = Black;
+	Color reticleColor = SColorText();
 	
 	Color gridColor = SColorDkShadow();
 	double gridWidth = 0.5;
@@ -1168,8 +1172,8 @@ protected:
 	int legendNumCols = 1;
 	LEGEND_POS legendAnchor = RIGHT_TOP;
 	int legendRowSpacing = 5;
-	Color legendFillColor = White();
-	Color legendBorderColor = Black();
+	Color legendFillColor = SColorPaper();
+	Color legendBorderColor = SColorText();
 	Font legendFont = GetStdFont();
 	
 	void DrawLegend(Draw& w) const;
@@ -1222,9 +1226,9 @@ protected:
 	Point rainbowPos = Point(5, 5);
 	Size rainbowSize = Size(10, 50);
 	LEGEND_POS rainbowAnchor = RIGHT_BOTTOM;
-	Color rainbowBorderColor = Black;
+	Color rainbowBorderColor = SColorText();
 	Font rainbowPaletteFont = StdFont();
-	Color rainbowPaletteTextColor = Black;
+	Color rainbowPaletteTextColor = SColorText();
 	
 	void DrawRainbowPalette(Draw& w) const;
 	
@@ -1249,11 +1253,14 @@ private:
 	void SetRangeLinkedEach(double rx, double rx0, double ry, double ry0, double ry2, double ry20);
 	
 	int NumSeriesLegend() const;
+	
+	void AddId(Vector<Vector<int>> &ids, int id);
 		
 	int plotW = Null, plotH = Null;
 	bool labelsChanged = false;
 	bool stacked = false;
 	bool serializeFormat = true;
+	static String defaultCSVseparator;
 };
 
 template <class T>
@@ -1474,7 +1481,7 @@ bool ScatterDraw::PlotTexts(T& w, const bool boldX, bool boldY) {
 		borderWidth = fround(delayFactor*borderWidth);
 	}
 #endif
-	DrawRectangle(w, 0, 0, plotW, plotH, 1, borderWidth, Black);
+	DrawRectangle(w, 0, 0, plotW, plotH, 1, borderWidth, SColorText());
 	
 	w.End();	
 	
