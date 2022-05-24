@@ -1615,7 +1615,7 @@ void ScatterDraw::Plot(T& w) {
 			if (data.IsExplicit() && IsNull(data.GetCount()))
 				continue;
 			Vector<Pointf> points = DataAddPoints(serie.Data(), serie.primaryY, serie.sequential);
-			if (!points.IsEmpty() && serie.seriesPlot && serie.thickness > 0) 
+			if (!points.IsEmpty() && serie.seriesPlot && (serie.thickness > 0 || !IsNull(serie.fillColor)))
 				serie.seriesPlot->Paint(w, points, plotScaleAvg, serie.opacity, 
 											serie.thickness, serie.color, 
 											serie.dash, plotAreaColor, serie.fillColor, plotW/xRange, plotH/yRange, 
